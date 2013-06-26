@@ -1,0 +1,4 @@
+.vagrant*
+bin
+.DS_Store
+.gopath/
