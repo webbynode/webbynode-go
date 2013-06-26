@@ -14,14 +14,6 @@ func main() {
   }
 }
 
-func NewWebbynodeCli() *WebbynodeCli {
-  return nil
-}
-
-type WebbynodeCli struct {
-  system    string
-}
-
 func (cli *WebbynodeCli) CmdHelp(args ...string) error {
   help := fmt.Sprintf("Usage: webbynode [OPTIONS] COMMAND [arg...]\n\nCommands:\n")
   // \n  -H=[tcp://%s:%d]: tcp://host:port to bind/connect to or unix://path/to/socker to use\n\nA self-sufficient runtime for linux containers.\n\nCommands:\n", DEFAULTHTTPHOST, DEFAULTHTTPPORT)
@@ -62,23 +54,3 @@ func (cli *WebbynodeCli) CmdHelp(args ...string) error {
   return nil
 }
 
-func ParseCommands(args ...string) error {
-  cli := NewWebbynodeCli()
-
-  if len(args) > 0 {
-    // method, exists := cli.getMethod(args[0])
-    // if !exists {
-    //   fmt.Println("Error: Command not found:", args[0])
-    //   return cli.CmdHelp(args[1:]...)
-    // }
-    // ret := method.Func.CallSlice([]reflect.Value{
-    //   reflect.ValueOf(cli),
-    //   reflect.ValueOf(args[1:]),
-    // })[0].Interface()
-    // if ret == nil {
-    //   return nil
-    // }
-    // return ret.(error)
-  }
-  return cli.CmdHelp(args...)
-}
