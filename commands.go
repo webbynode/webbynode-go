@@ -1,17 +1,62 @@
 package main
 
 import (
-  "flag"
+  // "archive/tar"
+  // "bytes"
+  // "encoding/json"
+  // "flag"
   "fmt"
-  "log"
-  "os"
+  // "github.com/dotcloud/docker/auth"
+  // "github.com/dotcloud/docker/term"
+  // "github.com/dotcloud/docker/utils"
+  // "io"
+  // "io/ioutil"
+  // "net"
+  // "net/http"
+  // "net/http/httputil"
+  // "net/url"
+  // "os"
+  // "os/signal"
+  // "path/filepath"
+  "reflect"
+  // "regexp"
+  // "strconv"
+  "strings"
+  // "syscall"
+  // "text/tabwriter"
+  // "time"
+  // "unicode"
 )
 
-func main() {
-  if err := ParseCommands(flag.Args()...); err != nil {
-    log.Fatal(err)
-    os.Exit(-1)
+func (cli *WebbynodeCli) getMethod(name string) (reflect.Method, bool) {
+  methodName := "Cmd" + strings.ToUpper(name[:1]) + strings.ToLower(name[1:])
+  return reflect.TypeOf(cli).MethodByName(methodName)
+}
+
+func ParseCommands(args ...string) error {
+  cli := NewWebbynodeCli()
+
+  if len(args) > 0 {
+    method, exists := cli.getMethod(args[0])
+    if !exists {
+      fmt.Println("Error: Command not found:", args[0])
+      return cli.CmdHelp(args[1:]...)
+    }
+    ret := method.Func.CallSlice([]reflect.Value{
+      reflect.ValueOf(cli),
+      reflect.ValueOf(args[1:]),
+    })[0].Interface()
+    if ret == nil {
+      return nil
+    }
+    return ret.(error)
   }
+  return cli.CmdHelp(args...)
+}
+
+func (cli *WebbynodeCli) CmdConfig(args ...string) error {
+  GetCredentials()
+  return nil
 }
 
 func (cli *WebbynodeCli) CmdHelp(args ...string) error {
@@ -54,3 +99,10 @@ func (cli *WebbynodeCli) CmdHelp(args ...string) error {
   return nil
 }
 
+func NewWebbynodeCli() *WebbynodeCli {
+  return nil
+}
+
+type WebbynodeCli struct {
+  system    string
+}
