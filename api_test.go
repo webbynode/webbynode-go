@@ -1,8 +1,8 @@
 package main
 
 import (
-  "io/ioutil"
   "fmt"
+  "io/ioutil"
   "strings"
   "testing"
 )
@@ -19,11 +19,11 @@ aws_secret=AWS_SECRET
   config := WebbynodeCfg{configFile: tempFixture(fileContents)}
   config.Load()
 
-  assert(t, "email",      "felipe.coury@gmail.com", config.email)
-  assert(t, "token",      "TOKEN12345",             config.token)
-  assert(t, "system",     "manager",                config.system)
-  assert(t, "aws_key",    "AWS_KEY",                config.awsKey)
-  assert(t, "aws_secret", "AWS_SECRET",             config.awsSecret)
+  assert(t, "email", "felipe.coury@gmail.com", config.email)
+  assert(t, "token", "TOKEN12345", config.token)
+  assert(t, "system", "manager", config.system)
+  assert(t, "aws_key", "AWS_KEY", config.awsKey)
+  assert(t, "aws_secret", "AWS_SECRET", config.awsSecret)
 }
 
 func TestSaveConfig(t *testing.T) {
@@ -36,11 +36,11 @@ func TestSaveConfig(t *testing.T) {
 
   config := WebbynodeCfg{
     configFile: fileName,
-    email: "email@something.com",
-    token: "token",
-    system: "manager",
-    awsKey: "awsKey",
-    awsSecret: "awsSecret",
+    email:      "email@something.com",
+    token:      "token",
+    system:     "manager",
+    awsKey:     "awsKey",
+    awsSecret:  "awsSecret",
   }
   config.Save()
 

@@ -3,11 +3,11 @@ package main
 import (
   "bufio"
   "fmt"
-  "path/filepath"
   "io/ioutil"
+  "log"
   "os"
   "os/user"
-  "log"
+  "path/filepath"
   "strings"
 )
 
@@ -31,7 +31,9 @@ func readConfig(file string) []string {
 
 func GetCredentials(inCfg *WebbynodeCfg, overwrite bool) *WebbynodeCfg {
   var config *WebbynodeCfg
-  if inCfg != nil { config = inCfg }
+  if inCfg != nil {
+    config = inCfg
+  }
   config.configFile = getHomePath(".webbynode")
 
   if config.Exists() {
@@ -131,11 +133,10 @@ func (cfg *WebbynodeCfg) Exists() bool {
 }
 
 type WebbynodeCfg struct {
-  configFile  string
-  email       string
-  token       string
-  system      string
-  awsKey      string
-  awsSecret   string
+  configFile string
+  email      string
+  token      string
+  system     string
+  awsKey     string
+  awsSecret  string
 }
-
