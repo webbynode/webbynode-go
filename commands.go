@@ -1,33 +1,28 @@
 package main
 
 import (
-  // "archive/tar"
-  // "bytes"
-  // "encoding/json"
-  // "bufio"
   "flag"
   "fmt"
-  // "github.com/dotcloud/docker/auth"
-  // "github.com/dotcloud/docker/term"
-  // "github.com/dotcloud/docker/utils"
-  // "io"
-  // "io/ioutil"
-  // "net"
-  // "net/http"
-  // "net/http/httputil"
-  // "net/url"
-  // "os"
-  // "os/signal"
-  // "path/filepath"
   "reflect"
-  // "regexp"
-  // "strconv"
   "strings"
-  // "syscall"
-  // "text/tabwriter"
-  // "time"
-  // "unicode"
 )
+
+func (cl *WebbynodeCli) CmdSsh(args ...string) error {
+  git := GitConfig{}
+  git.Parse()
+  fmt.Println("IP:", git.ip, "Port:", git.port)
+  return nil
+}
+
+func (cli *WebbynodeCli) CmdConfig(args ...string) error {
+  newConfig, _, err := ParseConfig(args)
+  if err != nil {
+    panic(err)
+  }
+
+  GetCredentials(newConfig, true)
+  return nil
+}
 
 func (cli *WebbynodeCli) getMethod(name string) (reflect.Method, bool) {
   methodName := "Cmd" + strings.ToUpper(name[:1]) + strings.ToLower(name[1:])
@@ -53,16 +48,6 @@ func ParseCommands(args ...string) error {
     return ret.(error)
   }
   return cli.CmdHelp(args...)
-}
-
-func (cli *WebbynodeCli) CmdConfig(args ...string) error {
-  newConfig, _, err := ParseConfig(args)
-  if err != nil {
-    panic(err)
-  }
-
-  GetCredentials(newConfig, true)
-  return nil
 }
 
 func ParseConfig(args []string) (*WebbynodeCfg, *flag.FlagSet, error) {

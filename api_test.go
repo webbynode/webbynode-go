@@ -19,11 +19,11 @@ aws_secret=AWS_SECRET
   config := WebbynodeCfg{configFile: tempFixture(fileContents)}
   config.Load()
 
-  assert(t, "email", "felipe.coury@gmail.com", config.email)
-  assert(t, "token", "TOKEN12345", config.token)
-  assert(t, "system", "manager", config.system)
-  assert(t, "aws_key", "AWS_KEY", config.awsKey)
-  assert(t, "aws_secret", "AWS_SECRET", config.awsSecret)
+  assertEquals(t, "email", "felipe.coury@gmail.com", config.email)
+  assertEquals(t, "token", "TOKEN12345", config.token)
+  assertEquals(t, "system", "manager", config.system)
+  assertEquals(t, "aws_key", "AWS_KEY", config.awsKey)
+  assertEquals(t, "aws_secret", "AWS_SECRET", config.awsSecret)
 }
 
 func TestSaveConfig(t *testing.T) {
@@ -57,7 +57,7 @@ func TestSaveConfig(t *testing.T) {
   assertContains(t, contents, "aws_secret=awsSecret\n")
 }
 
-func assert(t *testing.T, item, expected, actual string) {
+func assertEquals(t *testing.T, item, expected, actual string) {
   if expected != actual {
     failure := fmt.Sprintf("Expected %s to be '%s' but got '%s'",
       item, expected, actual)
