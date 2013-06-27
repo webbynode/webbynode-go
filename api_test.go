@@ -54,7 +54,7 @@ func TestSaveConfig(t *testing.T) {
   assertContains(t, contents, "token=token")
   assertContains(t, contents, "system=manager")
   assertContains(t, contents, "aws_key=awsKey")
-  assertContains(t, contents, "aws_secret=awsSecret")
+  assertContains(t, contents, "aws_secret=awsSecret\n")
 }
 
 func assert(t *testing.T, item, expected, actual string) {

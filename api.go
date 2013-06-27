@@ -121,6 +121,7 @@ func (cfg *WebbynodeCfg) Save() error {
   if cfg.awsSecret != "" {
     lines = append(lines, fmt.Sprintf("aws_secret=%s", cfg.awsSecret))
   }
+  lines = append(lines, "")
   contents := []byte(strings.Join(lines, "\n"))
   return ioutil.WriteFile(cfg.configFile, contents, 0644)
 }
