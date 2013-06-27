@@ -10,7 +10,7 @@ import (
 func (cl *WebbynodeCli) CmdSsh(args ...string) error {
   git := GitConfig{}
   git.Parse()
-  fmt.Println("IP:", git.ip, "Port:", git.port)
+  git.SshConsole()
   return nil
 }
 
