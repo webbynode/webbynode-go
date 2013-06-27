@@ -4,7 +4,8 @@ import (
   // "archive/tar"
   // "bytes"
   // "encoding/json"
-  // "flag"
+  // "bufio"
+  "flag"
   "fmt"
   // "github.com/dotcloud/docker/auth"
   // "github.com/dotcloud/docker/term"
@@ -55,8 +56,25 @@ func ParseCommands(args ...string) error {
 }
 
 func (cli *WebbynodeCli) CmdConfig(args ...string) error {
-  GetCredentials()
+  newConfig, _, err := ParseConfig(args)
+  if err != nil {
+    panic(err)
+  }
+
+  GetCredentials(newConfig, true)
   return nil
+}
+
+func ParseConfig(args []string) (*WebbynodeCfg, *flag.FlagSet, error) {
+  cmd := Subcmd("config", "[OPTIONS]", "Configures Webbynode credentials")
+  email := cmd.String("email", "", "Webbynode account email")
+  token := cmd.String("token", "", "Webbynode account token")
+  system := cmd.String("system", "manager2", "Uses manager or manager2 as the API endpoint")
+  cmd.Parse(args)
+
+  config := &WebbynodeCfg{email: *email, token: *token, system: *system}
+
+  return config, cmd, nil
 }
 
 func (cli *WebbynodeCli) CmdHelp(args ...string) error {
@@ -97,6 +115,15 @@ func (cli *WebbynodeCli) CmdHelp(args ...string) error {
   }
   fmt.Println(help)
   return nil
+}
+
+func Subcmd(name, signature, description string) *flag.FlagSet {
+  flags := flag.NewFlagSet(name, flag.ContinueOnError)
+  flags.Usage = func() {
+    fmt.Printf("\nUsage: webbynode %s %s\n\n%s\n\n", name, signature, description)
+    flags.PrintDefaults()
+  }
+  return flags
 }
 
 func NewWebbynodeCli() *WebbynodeCli {
