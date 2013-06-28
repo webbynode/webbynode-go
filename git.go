@@ -1,15 +1,8 @@
 package main
 
 import (
-  // "bytes"
-  // "io"
-  // "flag"
-  "fmt"
-  // "os"
-  // "os/exec"
-  // "reflect"
   "regexp"
-  // "strings"
+  "syscall"
   "github.com/vaughan0/go-ini"
 )
 
@@ -57,32 +50,9 @@ func (git *GitConfig) Parse() {
 }
 
 func (git *GitConfig) SshConsole() {
-  // args := []string { "-p", git.port, git.user + "@" + git.ip }
-  // process, err := os.StartProcess("/usr/bin/ssh", args, &os.ProcAttr{})
-  // if err != nil {
-  //   panic(err)
-  // }
-  // fmt.Println(process)
-  // process.Wait()
-  // fmt.Println(process.String())
-
-  // cmd := exec.Command("ssh", "-p", git.port, git.user + "@" + git.ip)
-  // err := cmd.Start()
-  // if err != nil {
-  //   panic(err)
-  // }
-  // err = cmd.Wait()
-  // if err != nil {
-  //   fmt.Fprintln(os.Stderr, err)
-  //   return
-  // }
-
-  // var b bytes.Buffer
-  // io.Copy(&b, cmd.Stdout)
-  // fmt.Println(b.String())
-  fmt.Println("This command is not yet implemented.")
-  fmt.Println("Meanwhile use this to log into your Webby:")
-  fmt.Printf("  ssh -p %s %s@%s\n", git.port, git.user, git.ip)
+  syscall.Exec("/usr/bin/ssh",
+    []string{"-p " + git.port, git.user + "@" + git.ip},
+    []string{})
 }
 
 func (git *GitConfig) ReadFromFile(fileName string) {
