@@ -3,15 +3,125 @@ package main
 import (
   "flag"
   "fmt"
+  "io/ioutil"
+  "os"
   "reflect"
   "strings"
 )
 
-func (cl *WebbynodeCli) CmdSsh(args ...string) error {
-  git := GitConfig{}
-  git.Parse()
-  git.SshConsole()
+func (cli *WebbynodeCli) CmdAccounts(args ...string) error {
+  cmd := Subcmd("accounts", "[OPTIONS]", "Manages multiple Webbynode accounts")
+  cmd.Parse(args)
+
+  newArgs := cmd.Args()
+  action := getArg(newArgs, 0)
+  name := getArg(newArgs, 1)
+  newName := getArg(newArgs, 2)
+
+  target := getFileForAccount(name)
+
+  if action == "" || action == "list" {
+    currentConfig := GetCredentials(nil, false)
+
+    files, err := ioutil.ReadDir(UserHome())
+    if (err != nil) {
+      panic(err)
+    }
+    found := 0
+    for _, f := range files {
+      if strings.HasPrefix(f.Name(), ".webbynode_") {
+        config := WebbynodeCfg{configFile: GetHomePath(f.Name())}
+        config.Load()
+
+        name := strings.SplitN(f.Name(), "webbynode_", 2)[1]
+        mark := "  "
+        if config.email == currentConfig.email && config.system == currentConfig.system {
+          mark = "* "
+        }
+        fmt.Println(mark + name)
+        found++
+      }
+    }
+
+    if (found == 0) {
+      fmt.Println("No accounts found. Use 'wn accounts save' to save current account with an alias.")
+    }
+  } else if action == "save" {
+    if FileExists(target) {
+      overwrite, err := AskYN("Do you want to overwrite saved account " + name)
+      if err != nil {
+        panic(err)
+      }
+
+      if !overwrite {
+        fmt.Println("Save aborted.")
+        return nil
+      }
+    }
+
+    CopyFile(GetHomePath(".webbynode"), target)
+    fmt.Println("Saved account as " + name + ".")
+  } else if action == "delete" {
+    if !checkAccountExists(name) {
+      return nil
+    }
+    delete, err := AskYN("Do really you want to delete " + name + " account")
+    if (err != nil) {
+      panic(err)
+    }
+    if !delete {
+      fmt.Println("Delete aborted.")
+      return nil
+    }
+    os.Remove(target)
+    fmt.Println("Account " + name + " deleted.")
+  } else if action == "use" {
+    if !checkAccountExists(name) {
+      return nil
+    }
+    CopyFile(target, GetHomePath(".webbynode"))
+    fmt.Println("Switched to " + name + " account.")
+  } else if action == "rename" {
+    if !checkAccountExists(name) {
+      return nil
+    }
+    newTarget := GetHomePath(".webbynode_" + newName)
+    if FileExists(newTarget) {
+      overwrite, err := AskYN("Do you want to overwrite saved account " + newName)
+      if err != nil {
+        panic(err)
+      }
+
+      if !overwrite {
+        fmt.Println("Rename aborted.")
+        return nil
+      }
+    }
+    RenameFile(target, newTarget)
+    fmt.Println("Renamed account " + name + " to " + newName + ".")
+  }
+
   return nil
+}
+
+func getFileForAccount(name string) string {
+  return GetHomePath(".webbynode_" + name)
+}
+
+func checkAccountExists(name string) bool {
+  target := getFileForAccount(name)
+  if !FileExists(target) {
+    fmt.Println("Account named " + name + " doesn't exist.")
+    return false
+  }
+  return true
+}
+
+func getArg(args []string, pos int) string {
+  if len(args) > pos {
+    return args[pos]
+  }
+  return ""
 }
 
 func (cli *WebbynodeCli) CmdConfig(args ...string) error {
@@ -21,6 +131,13 @@ func (cli *WebbynodeCli) CmdConfig(args ...string) error {
   }
 
   GetCredentials(newConfig, true)
+  return nil
+}
+
+func (cl *WebbynodeCli) CmdSsh(args ...string) error {
+  git := GitConfig{}
+  git.Parse()
+  git.SshConsole()
   return nil
 }
 

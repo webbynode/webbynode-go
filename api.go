@@ -1,27 +1,29 @@
 package main
 
 import (
-  "bufio"
   "fmt"
   "io/ioutil"
   "log"
-  "os"
   "os/user"
   "path/filepath"
   "strings"
 )
 
-var ConfigFile = getHomePath(".webbynode")
+var ConfigFile = GetHomePath(".webbynode")
 
-func getHomePath(file string) string {
+func UserHome() string {
   usr, err := user.Current()
   if err != nil {
     log.Fatal(err)
   }
-  return filepath.Join(usr.HomeDir, file)
+  return usr.HomeDir
 }
 
-func readConfig(file string) []string {
+func GetHomePath(file string) string {
+  return filepath.Join(UserHome(), file)
+}
+
+func ReadConfig(file string) []string {
   b, err := ioutil.ReadFile(file)
   if err != nil {
     panic(err)
@@ -31,10 +33,12 @@ func readConfig(file string) []string {
 
 func GetCredentials(inCfg *WebbynodeCfg, overwrite bool) *WebbynodeCfg {
   var config *WebbynodeCfg
-  if inCfg != nil {
+  if inCfg == nil {
+    config = &WebbynodeCfg{}
+  } else {
     config = inCfg
   }
-  config.configFile = getHomePath(".webbynode")
+  config.configFile = GetHomePath(".webbynode")
 
   if config.Exists() {
     config.Load()
@@ -42,21 +46,21 @@ func GetCredentials(inCfg *WebbynodeCfg, overwrite bool) *WebbynodeCfg {
 
   if !config.Exists() || overwrite {
     if overwrite || config.system == "" {
-      system, err := getInput("What's the end point you're using - manager or manager2? ")
+      system, err := Ask("What's the end point you're using - manager or manager2? ")
       if err != nil {
         panic(err)
       }
       config.system = system
     }
     if overwrite || config.email == "" {
-      email, err := getInput("Login email: ")
+      email, err := Ask("Login email: ")
       if err != nil {
         panic(err)
       }
       config.email = email
     }
     if overwrite || config.token == "" {
-      token, err := getInput("API token:   ")
+      token, err := Ask("API token:   ")
       if err != nil {
         panic(err)
       }
@@ -68,19 +72,12 @@ func GetCredentials(inCfg *WebbynodeCfg, overwrite bool) *WebbynodeCfg {
   return config
 }
 
-func getInput(prompt string) (string, error) {
-  fmt.Print(prompt)
-  reader := bufio.NewReader(os.Stdin)
-  value, err := reader.ReadString('\n')
-  return strings.TrimSpace(value), err
-}
-
 func (cfg *WebbynodeCfg) Load() (bool, error) {
   if !cfg.Exists() {
     return false, nil
   }
 
-  for _, line := range readConfig(cfg.configFile) {
+  for _, line := range ReadConfig(cfg.configFile) {
     if strings.TrimSpace(line) != "" {
       parts := strings.SplitN(line, "=", 2)
       switch parts[0] {
@@ -127,10 +124,7 @@ func (cfg *WebbynodeCfg) Save() error {
 }
 
 func (cfg *WebbynodeCfg) Exists() bool {
-  if _, err := os.Stat(cfg.configFile); err == nil {
-    return true
-  }
-  return false
+  return FileExists(cfg.configFile)
 }
 
 type WebbynodeCfg struct {

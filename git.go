@@ -21,7 +21,7 @@ func (git *GitConfig) Parse() {
 
   file := git.file
   url, _ := file.Get("remote \"webbynode\"", "url")
-  if regexp.MustCompile(`^ssh://(\w+)@(.+)/(.+)$`).MatchString(url) == true {
+  if isSshFormatted(url) {
     re1, err := regexp.Compile(`^ssh://(\w+)@(.+)/(.+)$`)
     if err != nil {
       panic(nil)
@@ -49,9 +49,15 @@ func (git *GitConfig) Parse() {
   }
 }
 
+var SshFormat = regexp.MustCompile(`^ssh://(\w+)@(.+)/(.+)$`)
+
+func isSshFormatted(url string) bool {
+  return SshFormat.MatchString(url)
+}
+
 func (git *GitConfig) SshConsole() {
   syscall.Exec("/usr/bin/ssh",
-    []string{"-p " + git.port, git.user + "@" + git.ip},
+    []string{"ssh", "-p", git.port, git.user + "@" + git.ip},
     []string{})
 }
 
