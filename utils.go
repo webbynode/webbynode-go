@@ -24,7 +24,7 @@ func Ask(prompt string) (string, error) {
 
 func AskYN(prompt string) (bool, error) {
   v, err := Ask(prompt + " (y/n)? ")
-  if (err != nil) {
+  if err != nil {
     return false, err
   }
   return strings.ToLower(v) == "y", err
@@ -48,4 +48,19 @@ func CopyFile(source, target string) error {
 
 func RenameFile(source, target string) error {
   return os.Rename(source, target)
+}
+
+func Capitalize(s string) string {
+  if s == "" {
+    return s
+  }
+  return strings.ToTitle(s)[:1] + s[1:]
+}
+
+func Classify(s string) string {
+  res := ""
+  for _, s := range strings.Split(s, "_") {
+    res += Capitalize(s)
+  }
+  return res
 }

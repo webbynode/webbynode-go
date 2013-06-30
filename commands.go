@@ -24,7 +24,7 @@ func (cli *WebbynodeCli) CmdAccounts(args ...string) error {
     currentConfig := GetCredentials(nil, false)
 
     files, err := ioutil.ReadDir(UserHome())
-    if (err != nil) {
+    if err != nil {
       panic(err)
     }
     found := 0
@@ -43,7 +43,7 @@ func (cli *WebbynodeCli) CmdAccounts(args ...string) error {
       }
     }
 
-    if (found == 0) {
+    if found == 0 {
       fmt.Println("No accounts found. Use 'wn accounts save' to save current account with an alias.")
     }
   } else if action == "save" {
@@ -66,7 +66,7 @@ func (cli *WebbynodeCli) CmdAccounts(args ...string) error {
       return nil
     }
     delete, err := AskYN("Do really you want to delete " + name + " account")
-    if (err != nil) {
+    if err != nil {
       panic(err)
     }
     if !delete {
@@ -101,6 +101,19 @@ func (cli *WebbynodeCli) CmdAccounts(args ...string) error {
     fmt.Println("Renamed account " + name + " to " + newName + ".")
   }
 
+  return nil
+}
+
+func (cli *WebbynodeCli) CmdAddKey(args ...string) error {
+  cmd := Subcmd("add_key", "[OPTIONS]", "Manages multiple Webbynode accounts")
+  passphrase := cmd.String("passphrase", "", "passphrase for creating ssh key")
+  cmd.Parse(args)
+
+  fmt.Println("Add key it is.")
+  git := &GitConfig{}
+  git.Parse()
+  git.AddSshKey(*passphrase)
+  fmt.Println(git)
   return nil
 }
 
@@ -142,7 +155,7 @@ func (cl *WebbynodeCli) CmdSsh(args ...string) error {
 }
 
 func (cli *WebbynodeCli) getMethod(name string) (reflect.Method, bool) {
-  methodName := "Cmd" + strings.ToUpper(name[:1]) + strings.ToLower(name[1:])
+  methodName := "Cmd" + Classify(name)
   return reflect.TypeOf(cli).MethodByName(methodName)
 }
 

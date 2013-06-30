@@ -1,9 +1,10 @@
 package main
 
 import (
+  "fmt"
+  "github.com/vaughan0/go-ini"
   "regexp"
   "syscall"
-  "github.com/vaughan0/go-ini"
 )
 
 type GitConfig struct {
@@ -47,6 +48,18 @@ func (git *GitConfig) Parse() {
     git.ip = res[2]
     git.port = "22"
   }
+}
+
+func (git *GitConfig) AddSshKey(passphrase string) {
+  sshKey := GetHomePath(".ssh/id_rsa.pub")
+  if !FileExists(sshKey) {
+    createSshKey(sshKey, passphrase)
+    fmt.Println("Doesn't exist")
+  }
+}
+
+func createSshKey(keyFile, passphrase string) {
+  // command := `/bin/bash -c "test -f %s"
 }
 
 var SshFormat = regexp.MustCompile(`^ssh://(\w+)@(.+)/(.+)$`)
